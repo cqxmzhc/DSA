@@ -5,6 +5,10 @@ import (
 	"fmt"
 )
 
+type BSTree struct {
+	root *node
+}
+
 type node struct {
 	value      int
 	leftChild  *node
@@ -12,39 +16,56 @@ type node struct {
 }
 
 //New return new node
-func New(initial int) *node {
+func NewTree(initial int) BSTree {
+	return BSTree{
+		root: NewNode(initial),
+	}
+}
+
+func NewNode(initial int) *node {
 	return &node{
 		value:      initial,
 		leftChild:  nil,
 		rightChild: nil,
 	}
+
 }
 
 //Insert insert value
-func Insert(root *node, value int) bool {
+func Insert(t BSTree, value int) bool {
+	return insert(t.root, value)
+}
+
+// insert
+func insert(root *node, value int) bool {
 	if root == nil {
 		return false
 	}
 
 	if value <= root.value {
 		if root.leftChild == nil {
-			root.leftChild = New(value)
+			root.leftChild = NewNode(value)
 			return true
 		} else {
-			return Insert(root.leftChild, value)
+			return insert(root.leftChild, value)
 		}
 	} else {
 		if root.rightChild == nil {
-			root.rightChild = New(value)
+			root.rightChild = NewNode(value)
 			return true
 		} else {
-			return Insert(root.rightChild, value)
+			return insert(root.rightChild, value)
 		}
 	}
 }
 
 //Delete delete value from tree
-func Delete(root *node, value int) bool {
+func Delete(t BSTree, value int) bool {
+	return delete(t.root, value)
+}
+
+//delete
+func delete(root *node, value int) bool {
 	if root == nil {
 		return false
 	}
@@ -70,17 +91,29 @@ func Delete(root *node, value int) bool {
 
 			return true
 		}
+
+		if root.leftChild != nil && root.rightChild != nil {
+			smallest, parent := findSmallest(root.rightChild, root)
+			parent.rightChild = nil
+			root.value = smallest.value
+
+		}
 	} else if root.value > value {
-		return Delete(root.leftChild, value)
+		return delete(root.leftChild, value)
 	} else {
-		return Delete(root.rightChild, value)
+		return delete(root.rightChild, value)
 	}
 
 	return false
 }
 
 //Find find value
-func Find(root *node, value int) bool {
+func Find(t BSTree, value int) bool {
+	return find(t.root, value)
+}
+
+//find
+func find(root *node, value int) bool {
 	if root == nil {
 		return false
 	}
@@ -88,25 +121,39 @@ func Find(root *node, value int) bool {
 	if root.value == value {
 		return true
 	} else if root.value > value {
-		return Find(root.leftChild, value)
+		return find(root.leftChild, value)
 	} else {
-		return Find(root.rightChild, value)
+		return find(root.rightChild, value)
 	}
 }
 
+//find the smallest value larger than root.value
+func findSmallest(root, parent *node) (*node, *node) {
+	if root == nil || root.leftChild == nil {
+		return root, parent
+	}
+
+	return findSmallest(root.leftChild, root)
+}
+
 //PrintBST print bst
-func PrintBST(root *node) {
+func PrintBST(t BSTree) {
+	printBST(t.root)
+}
+
+//printBST
+func printBST(root *node) {
 	if root == nil {
 		return
 	}
 
 	if root.leftChild != nil {
-		PrintBST(root.leftChild)
+		printBST(root.leftChild)
 	}
 
 	fmt.Println(root.value)
 
 	if root.rightChild != nil {
-		PrintBST(root.rightChild)
+		printBST(root.rightChild)
 	}
 }
