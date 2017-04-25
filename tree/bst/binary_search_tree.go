@@ -94,8 +94,15 @@ func delete(root *node, value int) bool {
 
 		if root.leftChild != nil && root.rightChild != nil {
 			smallest, parent := findSmallest(root.rightChild, root)
-			parent.rightChild = nil
-			root.value = smallest.value
+			if root == parent {
+				root.value = smallest.value
+				root.rightChild = smallest.rightChild
+
+				return true
+			} else {
+				root.value = smallest.value
+				return delete(smallest, smallest.value)
+			}
 
 		}
 	} else if root.value > value {
